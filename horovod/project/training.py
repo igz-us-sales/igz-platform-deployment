@@ -5,8 +5,7 @@ import tensorflow as tf
 
 import horovod.tensorflow.keras as hvd
 
-# to deprecate, use mlrun.mlutils.models and make this model a parameter instead:
-from tensorflow.keras.applications import EfficientNetB7
+from tensorflow.keras.applications import ResNet50
 
 from tensorflow.keras.layers import Flatten, Dense
 from tensorflow.keras.models import Model
@@ -82,7 +81,7 @@ total_train = train_df.shape[0]
 total_validate = validate_df.shape[0]
 
 # load model
-model = EfficientNetB7(include_top=False, input_shape=IMAGE_SHAPE)
+model = ResNet50(include_top=False, input_shape=IMAGE_SHAPE)
 
 # mark loaded layers as not trainable
 for layer in model.layers:
@@ -109,8 +108,7 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 if hvd.rank() == 0:
-    mlctx.logger.info("MODEL SUMMARY")
-#     model.summary()
+    model.summary()
 
 callbacks = [
     # Horovod: broadcast initial variable states from rank 0 to all other processes.

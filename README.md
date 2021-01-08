@@ -3,6 +3,10 @@
 ## Horovod
 General purpose Horovod template for use with KubeFlow Pipelines.
 
+Includes two versions:
+- `HorovodPipeline.ipynb` : With `YAML` config file (for easy parameter changes)
+- `HorovodPipelineNoConfig.ipynb` : With hard-coded values (for easier readibility).
+
 ### Quick-Start
 1. Clone git repo into Iguazio managed Jupyter service.
 2. Enter `horovod` directory.

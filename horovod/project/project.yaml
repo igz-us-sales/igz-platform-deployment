@@ -19,7 +19,6 @@ functions:
       description: ''
       build:
         commands: []
-        code_origin: https://github.com/igz-us-sales/igz-platform-deployment.git#c03abe6e12e398423c3e00f817601d381ce8dee1
 - url: hub://tf2_serving
   name: serving
 workflows:

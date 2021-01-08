@@ -9,10 +9,10 @@ trainer:
         use_gpu: false
         requests:
             cpu: 1
-            mem: "5G"
+            mem: "3G"
         limits:
             cpu: 2
-            mem: "6G"
+            mem: "5G"
         replicas: 2
     params:
         epochs: 2
