@@ -1,0 +1,27 @@
+project:
+    name: 'horovod-pipeline-template'
+utils:
+    image_archive: 'http://iguazio-sample-data.s3.amazonaws.com/catsndogs.zip'
+    images_dir: 'images' # artifact_path being pre-pended in function
+trainer:
+    script: 'training.py'
+    resources:
+        use_gpu: false
+        requests:
+            cpu: 1
+            mem: "3G"
+        limits:
+            cpu: 2
+            mem: "5G"
+    params:
+        epochs: 1
+        batch_size: 256
+        model_dir: 'tfmodels'
+        checkpoints_dir: 'models/checkpoints' # artifact_path being pre-pended in function
+serving:
+    model_name: 'cat_vs_dog_tfv1'
+    model_class: 'TFModel'
+    image_height: 128
+    image_width: 128
+    enable_explainer: false
+    min_replicas: 1

@@ -1,0 +1,28 @@
+name: horovod-pipeline-template
+functions:
+- url: utils.py
+  name: utils
+  kind: job
+  image: mlrun/mlrun
+- name: trainer
+  spec:
+    kind: mpijob
+    metadata:
+      name: trainer
+      project: horovod-pipeline-template
+      categories: []
+    spec:
+      command: /User/igz_repos/igz-platform-deployment/horovod/project/training.py
+      args: []
+      image: ''
+      env: []
+      description: ''
+      build:
+        commands: []
+- url: hub://tf2_serving
+  name: serving
+workflows:
+- name: main
+  path: workflow.py
+artifacts: []
+artifact_path: ''
