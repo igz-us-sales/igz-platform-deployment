@@ -21,6 +21,7 @@ def init_functions(functions: dict, project=None, secrets=None):
                                        mem=config['trainer']['resources']['requests']['mem'])
     functions['trainer'].with_limits(cpu=config['trainer']['resources']['limits']['cpu'],
                                      mem=config['trainer']['resources']['limits']['mem'])
+    functions['trainer'].spec.replicas = config['trainer']['resources']['replicas']
     if config['trainer']['resources']['use_gpu']:
         functions['trainer'].gpus(1)
     
@@ -29,7 +30,9 @@ def init_functions(functions: dict, project=None, secrets=None):
     functions['serving'].set_env('IMAGE_HEIGHT', config['serving']['image_height'])
     functions['serving'].set_env('IMAGE_WIDTH', config['serving']['image_width'])
     functions['serving'].set_env('ENABLE_EXPLAINER', config['serving']['enable_explainer'])
-    functions['serving'].spec.min_replicas = config['serving']['min_replicas']
+    functions["serving"].spec.base_spec['spec']['loggerSinks'] = [{'level': 'info'}]
+    functions['serving'].spec.min_replicas = config['serving']['replicas']
+    functions['serving'].spec.max_replicas = config['serving']['replicas']
 
 # Create a Kubeflow Pipelines pipeline
 @dsl.pipeline(

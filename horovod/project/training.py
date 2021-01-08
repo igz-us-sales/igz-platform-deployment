@@ -20,10 +20,10 @@ from mlrun import get_or_create_ctx
 from mlrun.artifacts import ChartArtifact
 
 # Acquire MLRun context and parameters:
-mlctx      = get_or_create_ctx('trainer')
+mlctx           = get_or_create_ctx('trainer')
 DATA_PATH       = mlctx.get_param('data_path')
-MODEL_DIR       = mlctx.get_param('model_dir', 'models')
-CHECKPOINTS_DIR = f"{mlctx.out_path}/{mlctx.get_param('checkpoints_dir')}"
+MODEL_DIR       = f"{mlctx.artifact_path}/{mlctx.get_param('model_dir')}"
+CHECKPOINTS_DIR = f"{mlctx.artifact_path}/{mlctx.get_param('checkpoints_dir')}"
 IMAGE_WIDTH     = mlctx.get_param('image_width', 128)
 IMAGE_HEIGHT    = mlctx.get_param('image_height', 128)
 IMAGE_CHANNELS  = mlctx.get_param('image_channels', 3)  # RGB color
@@ -34,8 +34,6 @@ BATCH_SIZE      = mlctx.get_param('batch_size', 16)
 # RANDOM_STATE must be a parameter for reproducibility:
 RANDOM_STATE    = mlctx.get_param('random_state', 1)
 TEST_SIZE       = mlctx.get_param('test_size', 0.2)
-
-print(CHECKPOINTS_DIR)
     
 # kubeflow outputs/inputs
 categories_map  = str(mlctx.get_input('categories_map').get())
@@ -75,8 +73,6 @@ os.makedirs(CHECKPOINTS_DIR, exist_ok=True)
 #
 
 # Prepare, test, and train the data
-if hvd.rank() == 0:
-    mlctx.logger.info("LOAD DF")
 train_df, validate_df = train_test_split(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
 train_df = train_df.reset_index(drop=True)
 validate_df = validate_df.reset_index(drop=True)
@@ -86,8 +82,6 @@ total_train = train_df.shape[0]
 total_validate = validate_df.shape[0]
 
 # load model
-if hvd.rank() == 0:
-    mlctx.logger.info("LOAD MODEL")
 model = EfficientNetB7(include_top=False, input_shape=IMAGE_SHAPE)
 
 # mark loaded layers as not trainable
@@ -115,7 +109,8 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 if hvd.rank() == 0:
-    model.summary()
+    mlctx.logger.info("MODEL SUMMARY")
+#     model.summary()
 
 callbacks = [
     # Horovod: broadcast initial variable states from rank 0 to all other processes.
@@ -179,8 +174,6 @@ validation_generator = validation_datagen.flow_from_dataframe(
 )
 
 # Train the model
-if hvd.rank() == 0:
-    mlctx.logger.info("TRAIN")
 history = model.fit(
     train_generator,
     steps_per_epoch=total_train // BATCH_SIZE,
@@ -194,7 +187,9 @@ history = model.fit(
 # save the model only on worker 0 to prevent failures ("cannot lock file")
 if hvd.rank() == 0:
     #os.makedirs(MODEL_DIR, exist_ok=True)
-    model_artifacts = os.path.join(mlctx.artifact_path, MODEL_DIR)
+#     model_artifacts = os.path.join(mlctx.artifact_path, MODEL_DIR)
+    model_artifacts = MODEL_DIR
+
 
     # log the epoch advancement
     mlctx.logger.info('history:', history.history)

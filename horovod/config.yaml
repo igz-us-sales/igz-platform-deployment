@@ -9,19 +9,20 @@ trainer:
         use_gpu: false
         requests:
             cpu: 1
-            mem: "3G"
+            mem: "5G"
         limits:
             cpu: 2
-            mem: "5G"
+            mem: "6G"
+        replicas: 2
     params:
-        epochs: 1
+        epochs: 2
         batch_size: 256
-        model_dir: 'tfmodels'
+        model_dir: 'models' # artifact_path being pre-pended in function
         checkpoints_dir: 'models/checkpoints' # artifact_path being pre-pended in function
 serving:
-    model_name: 'cat_vs_dog_tfv1'
+    model_name: 'cat_vs_dog_tfv2'
     model_class: 'TFModel'
     image_height: 128
     image_width: 128
     enable_explainer: false
-    min_replicas: 1
+    replicas: 1
